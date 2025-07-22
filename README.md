@@ -1,8 +1,10 @@
 # PMC
 
-Simulador sencillo de una empresa militar privada. Abre `index.html` en tu navegador para jugar.
+Simulador sencillo de una empresa militar privada. Puedes abrir `templates/index.html` directamente o ejecutar `app.py` para lanzar la versión web con Flask.
 
 La interfaz fue modernizada con un archivo de estilos separado y animaciones suaves. Ahora cada soldado tiene atributos de lealtad, moral y especialización y puede ascender de rango.
+
+Esta carpeta incluye ahora un servidor Flask sencillo junto con la versión por consola del juego y módulos separados que gestionan el motor principal, personal y misiones.
 
 ## Características
 - Contrata candidatos disponibles o crea vacantes para esperar perfiles mejores.
