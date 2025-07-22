@@ -1,2 +1,10 @@
 # PMC
-Juego de empresa militar privada
+
+Simulador sencillo de una empresa militar privada. Ahora cuenta con varias secciones para gestionar personal, contratos y eventos. Abre `index.html` en tu navegador para jugar.
+
+## Características
+- Contrata candidatos disponibles o crea vacantes para esperar perfiles mejores.
+- Gestión de contratos con duración y localización en distintos continentes.
+- Sistema de eventos aleatorios que afectan reputación o economía.
+- Historial completo de la empresa y resumen diario.
+- Navegación por páginas: Inicio, Personal, Contratos, Eventos, Historia y Ayuda.
