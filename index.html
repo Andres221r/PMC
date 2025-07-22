@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Comando Phantom</title>
-<style>
-body { font-family: Arial, sans-serif; background: #111; color: #eee; }
-#container { max-width: 800px; margin: auto; padding: 20px; }
-section { margin-bottom: 20px; }
-button { margin: 5px; }
-textarea { width: 100%; height: 100px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Comando Phantom</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    section { margin-bottom: 20px; }
+    button { margin: 5px; }
+  </style>
 </head>
 <body>
-<div id="container">
-<h1>Comando Phantom &mdash; Simulador de PMC</h1>
-<section id="menu">
-<button onclick="newGame()">Nuevo Juego</button>
-<button onclick="loadGame()">Cargar Juego</button>
-<button onclick="saveGame()">Guardar Juego</button>
-</section>
-<section id="info"></section>
-<section id="roster"></section>
-<section id="contracts"></section>
-<section id="logs"></section>
-</div>
+  <h1>Comando Phantom &mdash; Simulador de PMC</h1>
+  <section id="menu">
+    <button id="newBtn">Nuevo Juego</button>
+    <button id="loadBtn">Cargar Juego</button>
+    <button id="saveBtn">Guardar Juego</button>
+  </section>
+  <section id="info"></section>
+  <section id="roster"></section>
+  <section id="contracts"></section>
+  <section id="logs"></section>
+
 <script>
 let game = {
   credits: 10000,
@@ -35,15 +39,21 @@ let game = {
 
 function log(msg) {
   game.logs.push(msg);
-  document.getElementById('logs').innerHTML = '<h2>Registro</h2><pre>' + game.logs.join('\n') + '</pre>';
+  document.getElementById('logs').innerHTML =
+    '<h2>Registro</h2><pre>' + game.logs.join('\n') + '</pre>';
 }
 
 function renderRoster() {
   let html = '<h2>Personal</h2>';
   html += '<button onclick="hireSoldier()">Contratar Soldado</button>';
-  if (game.soldiers.length === 0) html += '<p>No hay soldados.</p>';
-  else {
-    html += '<ul>' + game.soldiers.map((s,i)=>'<li>' + s.name + ' (' + s.rank + ', habilidad '+s.skill+') <button onclick="dismissSoldier('+i+')">Despedir</button></li>').join('') + '</ul>';
+  if (game.soldiers.length === 0) {
+    html += '<p>No hay soldados.</p>';
+  } else {
+    html += '<ul>' + game.soldiers.map((s, i) =>
+      '<li>' + s.name + ' (' + s.rank +
+      ', habilidad ' + s.skill +
+      ') <button onclick="dismissSoldier(' + i + ')">Despedir</button></li>'
+    ).join('') + '</ul>';
   }
   document.getElementById('roster').innerHTML = html;
 }
@@ -51,20 +61,27 @@ function renderRoster() {
 function renderContracts() {
   let html = '<h2>Contratos Disponibles</h2>';
   html += '<button onclick="createContract()">Nuevo Contrato</button>';
-  if (game.contracts.length === 0) html += '<p>No hay contratos.</p>';
-  else {
-    html += '<ul>' + game.contracts.map((c,i)=>'<li>'+c.name+' (riesgo '+c.risk+', recompensa $'+c.reward+') <button onclick="acceptContract('+i+')">Aceptar</button></li>').join('') + '</ul>';
+  if (game.contracts.length === 0) {
+    html += '<p>No hay contratos.</p>';
+  } else {
+    html += '<ul>' + game.contracts.map((c, i) =>
+      '<li>' + c.name + ' (riesgo ' + c.risk +
+      ', recompensa $' + c.reward +
+      ') <button onclick="acceptContract(' + i + ')">Aceptar</button></li>'
+    ).join('') + '</ul>';
   }
   document.getElementById('contracts').innerHTML = html;
 }
 
 function renderInfo() {
-  document.getElementById('info').innerHTML = '<p>Créditos: $'+game.credits+' | Reputación: '+game.reputation+'</p>';
+  document.getElementById('info').innerHTML =
+    '<p>Créditos: $' + game.credits +
+    ' | Reputación: ' + game.reputation + '</p>';
 }
 
 function newGame() {
   if (confirm('¿Comenzar nuevo juego?')) {
-    game = {credits: 10000, reputation: 0, soldiers: [], contracts: [], logs: []};
+    game = { credits: 10000, reputation: 0, soldiers: [], contracts: [], logs: [] };
     renderAll();
     log('Nuevo juego iniciado.');
   }
@@ -91,15 +108,15 @@ function hireSoldier() {
   if (!name) return;
   const rank = prompt('Rango del soldado:', 'Soldado');
   const skill = parseInt(prompt('Habilidad (1-100):', '50')) || 50;
-  game.soldiers.push({name, rank, skill});
+  game.soldiers.push({ name, rank, skill });
   renderRoster();
-  log('Contratado '+name+'.');
+  log('Contratado ' + name + '.');
 }
 
 function dismissSoldier(i) {
-  const s = game.soldiers.splice(i,1)[0];
+  const s = game.soldiers.splice(i, 1)[0];
   renderRoster();
-  log('Despedido '+s.name+'.');
+  log('Despedido ' + s.name + '.');
 }
 
 function createContract() {
@@ -107,28 +124,33 @@ function createContract() {
   if (!name) return;
   const risk = parseInt(prompt('Riesgo (1-100):', '50')) || 50;
   const reward = parseInt(prompt('Recompensa $:', '1000')) || 1000;
-  game.contracts.push({name,risk,reward});
+  game.contracts.push({ name, risk, reward });
   renderContracts();
-  log('Nuevo contrato disponible: '+name+'.');
+  log('Nuevo contrato disponible: ' + name + '.');
 }
 
 function acceptContract(i) {
   const contract = game.contracts[i];
-  if (game.soldiers.length === 0) { alert('No tienes soldados.'); return; }
-  let idx = parseInt(prompt('Indice del soldado asignado (0-'+(game.soldiers.length-1)+'):'));
+  if (game.soldiers.length === 0) {
+    alert('No tienes soldados.');
+    return;
+  }
+  const idx = parseInt(
+    prompt('Índice del soldado asignado (0-' + (game.soldiers.length - 1) + '):')
+  );
   if (isNaN(idx) || idx < 0 || idx >= game.soldiers.length) return;
   const soldier = game.soldiers[idx];
-  const chance = Math.max(5, soldier.skill - contract.risk + 50); // base chance
-  const roll = Math.random()*100;
+  const chance = Math.max(5, soldier.skill - contract.risk + 50);
+  const roll = Math.random() * 100;
   if (roll < chance) {
     game.credits += contract.reward;
     game.reputation += 5;
-    log(soldier.name+' completó con éxito '+contract.name+'.');
+    log(soldier.name + ' completó con éxito ' + contract.name + '.');
   } else {
     game.reputation -= 10;
-    log(soldier.name+' falló '+contract.name+'.');
+    log(soldier.name + ' falló ' + contract.name + '.');
   }
-  game.contracts.splice(i,1);
+  game.contracts.splice(i, 1);
   renderAll();
 }
 
@@ -137,6 +159,10 @@ function renderAll() {
   renderRoster();
   renderContracts();
 }
+
+document.getElementById('newBtn').addEventListener('click', newGame);
+document.getElementById('loadBtn').addEventListener('click', loadGame);
+document.getElementById('saveBtn').addEventListener('click', saveGame);
 
 renderAll();
 </script>
