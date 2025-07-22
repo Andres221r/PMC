@@ -8,3 +8,5 @@ Simulador sencillo de una empresa militar privada. Ahora cuenta con varias secci
 - Sistema de eventos aleatorios que afectan reputación o economía.
 - Historial completo de la empresa y resumen diario.
 - Navegación por páginas: Inicio, Personal, Contratos, Eventos, Historia y Ayuda.
+- Misiones nuevas se generan de forma automática cada día.
+- Ventana emergente con resumen de novedades al finalizar el día.

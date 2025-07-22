@@ -18,6 +18,25 @@
     nav button { margin:5px; background:#1f6feb; color:#fff; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; }
     section { display:none; margin-bottom:20px; background:rgba(255,255,255,0.05); padding:20px; border-radius:8px; }
     #main{ display:block; }
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #overlayContent {
+      background: #1a2027;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+    }
+    #overlayContent button {
+      margin-top: 15px;
+      background:#1f6feb; color:#fff; border:none; padding:8px 16px; border-radius:5px; cursor:pointer;
+    }
   </style>
 </head>
 <body>
@@ -38,6 +57,10 @@
   <section id="history"></section>
   <section id="help"></section>
 
+  <div id="overlay">
+    <div id="overlayContent"></div>
+  </div>
+
 <script>
 const ranks = ['Soldado','Cabo','Sargento','Teniente','Capitan'];
 const continents = ['América','Europa','África','Asia','Oceanía'];
@@ -52,9 +75,11 @@ let game={
   active:[],
   history:[]
 };
+let dailyLog=[];
 
 function log(msg){
   game.history.push('Día '+day+': '+msg);
+  dailyLog.push(msg);
 }
 
 function randomName(){
@@ -68,6 +93,7 @@ function newGame(){
   day=0;
   game={credits:10000,reputation:0,soldiers:[],candidates:[],vacancies:[],contracts:[],active:[],history:[]};
   for(let i=0;i<3;i++)game.candidates.push(genCandidate());
+  maybeGenerateContract();
   renderAll();
   log('Inicio de operaciones');
 }
@@ -76,6 +102,17 @@ function saveGame(){localStorage.setItem('comandoPhantom',JSON.stringify({game,d
 function loadGame(){const d=localStorage.getItem('comandoPhantom');if(d){const data=JSON.parse(d);Object.assign(game,data.game);day=data.day;renderAll();}}
 
 function genCandidate(){return{ name:randomName(), rank:ranks[0], skill:40+Math.floor(Math.random()*60) };}
+function genContract(){
+  const name='Misión '+(game.contracts.length+game.active.length+1);
+  const risk=30+Math.floor(Math.random()*70);
+  const reward=500+Math.floor(Math.random()*1500);
+  const dur=1+Math.floor(Math.random()*3);
+  return {name,risk,reward,duration:dur,continent:continents[Math.floor(Math.random()*continents.length)]};
+}
+function maybeGenerateContract(){
+  const num=1+Math.floor(Math.random()*2);
+  for(let i=0;i<num;i++){const c=genContract();game.contracts.push(c);log('Nuevo contrato disponible: '+c.name);}
+}
 function hire(i){const c=game.candidates.splice(i,1)[0];game.soldiers.push(c);log('Contratado '+c.name);renderPersonnel();}
 function createVacancy(){const skill=parseInt(prompt('Habilidad mínima (1-100):','50'))||50;game.vacancies.push({skill});log('Vacante creada (habilidad '+skill+')');renderPersonnel();}
 function processVacancies(){game.vacancies.forEach((v,idx)=>{const cand=genCandidate();if(cand.skill>=v.skill){game.candidates.push(cand);game.vacancies.splice(idx,1);log('Nuevo candidato disponible: '+cand.name);}});}
@@ -83,7 +120,30 @@ function processVacancies(){game.vacancies.forEach((v,idx)=>{const cand=genCandi
 function createContract(){const name=prompt('Nombre del contrato:');if(!name)return;const risk=parseInt(prompt('Riesgo (1-100):','50'))||50;const reward=parseInt(prompt('Recompensa $:','1000'))||1000;const dur=1+Math.floor(Math.random()*3);const cont={name,risk,reward,duration:dur,continent:continents[Math.floor(Math.random()*continents.length)]};game.contracts.push(cont);log('Contrato generado: '+name);renderContracts();}
 function acceptContract(i){if(game.soldiers.length===0)return alert('Sin soldados');const sidx=parseInt(prompt('Índice de soldado (0-'+(game.soldiers.length-1)+'):'));if(isNaN(sidx)||sidx<0||sidx>=game.soldiers.length)return;const soldier=game.soldiers[sidx];const cont=game.contracts.splice(i,1)[0];game.active.push({soldier,cont,days:cont.duration});log(soldier.name+' asignado a '+cont.name);renderContracts();}
 
-function advanceDay(){day++;processVacancies();game.active.forEach((a,idx)=>{a.days--;if(a.days<=0){const chance=Math.max(5,a.soldier.skill-a.cont.risk+50);if(Math.random()*100<chance){game.credits+=a.cont.reward;game.reputation+=5;log(a.soldier.name+' completó '+a.cont.name);}else{game.reputation-=10;log(a.soldier.name+' fracasó en '+a.cont.name);}game.active.splice(idx,1);}});if(Math.random()<0.1){randomEvent();}renderAll();}
+function advanceDay(){
+  day++;
+  dailyLog=[];
+  maybeGenerateContract();
+  processVacancies();
+  game.active.forEach((a,idx)=>{
+    a.days--;
+    if(a.days<=0){
+      const chance=Math.max(5,a.soldier.skill-a.cont.risk+50);
+      if(Math.random()*100<chance){
+        game.credits+=a.cont.reward;
+        game.reputation+=5;
+        log(a.soldier.name+' completó '+a.cont.name);
+      }else{
+        game.reputation-=10;
+        log(a.soldier.name+' fracasó en '+a.cont.name);
+      }
+      game.active.splice(idx,1);
+    }
+  });
+  if(Math.random()<0.1){randomEvent();}
+  renderAll();
+  endDaySummary();
+}
 
 function randomEvent(){const events=[{msg:'Ataque rival, pierdes reputación',rep:-5},{msg:'Contrato extra ofrecido',action:()=>game.contracts.push({name:'Operación de oportunidad',risk:30,reward:500,duration:2,continent:continents[Math.floor(Math.random()*continents.length)]})},{msg:'Donación de simpatizantes',cred:500}];const e=events[Math.floor(Math.random()*events.length)];if(e.rep)game.reputation+=e.rep;if(e.cred)game.credits+=e.cred;if(e.action)e.action();log(e.msg);}
 
@@ -99,6 +159,18 @@ function renderHelp(){document.getElementById('help').innerHTML='<h2>Ayuda</h2><
 
 function renderAll(){renderMain();renderPersonnel();renderContracts();renderEvents();renderHistory();renderHelp();}
 function show(id){document.querySelectorAll('section').forEach(s=>s.style.display='none');document.getElementById(id).style.display='block';}
+function showOverlay(html){
+  const ov=document.getElementById('overlay');
+  document.getElementById('overlayContent').innerHTML=html+'<button onclick="hideOverlay()">Cerrar</button>';
+  ov.style.display='flex';
+}
+function hideOverlay(){document.getElementById('overlay').style.display='none';}
+function endDaySummary(){
+  if(dailyLog.length===0)return;
+  const html='<h3>Novedades del día '+day+'</h3><ul>'+dailyLog.map(m=>`<li>${m}</li>`).join('')+'</ul>';
+  showOverlay(html);
+  dailyLog=[];
+}
 
 document.addEventListener('DOMContentLoaded',()=>{newGame();});
 </script>
