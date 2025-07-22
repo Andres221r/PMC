@@ -1,6 +1,8 @@
 # PMC
 
-Simulador sencillo de una empresa militar privada. Ahora cuenta con varias secciones para gestionar personal, contratos y eventos. Abre `index.html` en tu navegador para jugar.
+Simulador sencillo de una empresa militar privada. Abre `index.html` en tu navegador para jugar.
+
+La interfaz fue modernizada con un archivo de estilos separado y animaciones suaves. Ahora cada soldado tiene atributos de lealtad, moral y especialización y puede ascender de rango.
 
 ## Características
 - Contrata candidatos disponibles o crea vacantes para esperar perfiles mejores.
